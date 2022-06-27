@@ -60,6 +60,9 @@
 #include "preprocess.h"
 #include <ikd-Tree/ikd_Tree.h>
 
+#include <sstream>
+#include <iomanip>
+
 #define INIT_TIME           (0.1)
 #define LASER_POINT_COV     (0.001)
 #define MAXN                (720000)
@@ -511,8 +514,10 @@ void publish_frame_world(const ros::Publisher & pubLaserCloudFull)
         scan_wait_num ++;
         if (pcl_wait_save->size() > 0 && pcd_save_interval > 0  && scan_wait_num >= pcd_save_interval)
         {
+            std::stringstream ss;
+            ss << std::setw(6) << std::setfill('0') << pcd_index;
             pcd_index ++;
-            string all_points_dir(string(string(ROOT_DIR) + "PCD/scans_") + to_string(pcd_index) + string(".pcd"));
+            string all_points_dir(string(string(ROOT_DIR) + "PCD/") + ss.str() + string(".pcd"));
             pcl::PCDWriter pcd_writer;
             cout << "current scan saved to /PCD/" << all_points_dir << endl;
             pcd_writer.writeBinary(all_points_dir, *pcl_wait_save);
