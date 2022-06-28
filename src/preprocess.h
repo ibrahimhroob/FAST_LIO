@@ -100,7 +100,8 @@ class Preprocess
   double blind;
   bool feature_enabled, given_offset_time;
   ros::Publisher pub_full, pub_surf, pub_corn;
-    
+  
+  std::string scan_id;  //IH: added scan id string to be bassed by the launch file 
 
   private:
   void avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg);
