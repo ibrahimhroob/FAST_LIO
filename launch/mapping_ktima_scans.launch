@@ -1,0 +1,44 @@
+<launch>
+<!-- Launch file for ouster OS2-16 LiDAR -->
+
+    <arg name="rviz" default="true" />
+    
+    <arg name="scans_interval" default="1" />
+    <arg name="point_filter_num" default="1" />
+    <arg name="filter_size_surf" default="0.1" />
+    <arg name="filter_size_map" default="0.1" />
+
+    <arg name="extrinsic_T" default="[0.0, 0.0, 0.0]" />
+    <arg name="extrinsic_R" default="[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]" />
+
+    <rosparam command="load" file="$(find fast_lio)/config/ouster16.yaml" />
+
+    <param name="feature_extract_enable" type="bool" value="0"/>
+    <param name="point_filter_num" type="int" value="$(arg point_filter_num)"/>
+    <param name="max_iteration" type="int" value="3" />
+    <param name="filter_size_surf" type="double" value="$(arg filter_size_surf)" />
+    <param name="filter_size_map" type="double" value="$(arg filter_size_map)" />
+    <param name="cube_side_length" type="double" value="1000" />
+    <param name="runtime_pos_log_enable" type="bool" value="0" />
+    <param name="pcd_save/interval" type="int" value="$(arg scans_interval)" />
+
+    <rosparam param="mapping/extrinsic_T" subst_value="True">$(arg extrinsic_T)</rosparam>
+    <rosparam param="mapping/extrinsic_R" subst_value="True">$(arg extrinsic_R)</rosparam>
+
+    <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" /> 
+
+    <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find fast_lio)/rviz_cfg/loam_livox.rviz" />
+    </group>
+
+    <!-- ######################### rosbag play/record ######################### -->
+    <arg name="bag_filename" default="april.bag" />
+    <arg name="bag_filepath"  default="/home/ibrahim/icra2022/ktima/bags" />
+    <arg name="play_delay" default="2" />   
+    <arg name="play_rate" default="1.0" />
+
+    <node pkg="rosbag" type="play" name="rosbag_play_points"
+        args="'$(arg bag_filepath)/$(arg bag_filename)' --delay '$(arg play_delay)' --rate '$(arg play_rate)' --clock --topics /os_cloud_node/points /os_cloud_node/imu" required="true"/>
+
+
+</launch>

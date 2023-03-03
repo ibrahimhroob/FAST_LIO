@@ -29,6 +29,7 @@ Preprocess::Preprocess()
   jump_down_limit = cos(jump_down_limit/180*M_PI);
   cos160 = cos(cos160/180*M_PI);
   smallp_intersect = cos(smallp_intersect/180*M_PI);
+  scan_id = "scans";
 }
 
 Preprocess::~Preprocess() {}

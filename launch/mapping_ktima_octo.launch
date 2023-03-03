@@ -1,0 +1,41 @@
+<launch>
+<!-- Launch file for ouster OS2-64 LiDAR -->
+
+    <arg name="rviz" default="true" />
+    <arg name="octo_res" default="0.1" />
+    <arg name="filter_size" default="0.5" />
+    <arg name="point_filter_num" default="4" />
+
+    <rosparam command="load" file="$(find fast_lio)/config/ouster16.yaml" />
+
+    <param name="feature_extract_enable" type="bool" value="0"/>
+    <param name="point_filter_num" type="int" value="$(arg point_filter_num)"/>
+    <param name="max_iteration" type="int" value="3" />
+    <param name="filter_size_surf" type="double" value="$(arg filter_size)" />
+    <param name="filter_size_map" type="double" value="$(arg filter_size)" />
+    <param name="cube_side_length" type="double" value="1000" />
+    <param name="runtime_pos_log_enable" type="bool" value="0" />
+    <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" /> 
+
+    <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find fast_lio)/rviz_cfg/loam_livox.rviz" />
+    </group>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="body_to_os_sensor"  args="0 0 0 0 0 0 body os_sensor" />
+
+	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+		<param name="resolution" value="$(arg octo_res)" />
+		
+		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
+		<param name="frame_id" type="string" value="camera_init" />
+		
+		<!-- maximum range to integrate (speedup!) -->
+		<param name="sensor_model/max_range" value="100.0" />
+		
+		<!-- data source to integrate (PointCloud2) -->
+		<remap from="cloud_in" to="/os_cloud_node/points" />
+	
+	</node>
+
+
+</launch>
